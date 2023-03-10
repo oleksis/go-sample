@@ -12,6 +12,7 @@ on:
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -47,7 +48,7 @@ jobs:
       # https://github.com/docker/login-action
       - name: Log into registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -78,13 +79,13 @@ jobs:
           provenance: true
 
       - name: Create CVE report
-        uses: docker/scout-action@ca09af31fdb99995a36608d63aba7b5e4f66709a
+        uses: docker/scout-action@6f8607869b4cfe009275fd1fb87656af9e3c81c2
         with:
           command: cves
           image: ${{ steps.meta.outputs.tags }}
           args: '--output image.sarif.json --format sarif' 
-          user: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          user: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
           registry_user: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
 
